@@ -1,0 +1,35 @@
+TESTING ODE_SOLVE_RK
+
+def dydt(y,t):
+    dydt = [-y[1], y[0]]
+    return np.array(dydt)
+
+y0 = [0,1]
+t = np.linspace(0,10,1000)
+y = ode_solve_rk(dydt, y0, t)
+plt.plot(t, y[0,:])
+
+ALTERNATIVE NON-REL
+
+Pf = ((3 * (sc.h**3) * y[0])/(16 * sc.pi * sc.proton_mass))**(1/3)
+dPdPf = ((8*sc.pi)/(3*(sc.h**3)*sc.electron_mass)) * (Pf ** 4)
+dPfdp = (((3 * (sc.h**3))/(16 * sc.pi * sc.proton_mass))**(1/3)) * (1/3) * (y[0]**(-2/3))
+dPdp = dPdPf * dPfdp
+dpdr = (-1 * (1/dPdp) * ((sc.G*y[0]*y[1])/(r**2)))
+
+ALTERNATIVE REL
+
+pF = ((3 * (sc.h**3) * y[0])/(16 * sc.pi * sc.proton_mass))**(1/3)
+dPdp = ((8 * sc.pi * sc.c)/(9 * (sc.h**3))) * (((3*(sc.h**3))/(16 * sc.pi * sc.proton_mass))**(1/3)) * (y[0]**(-2/3)) * ((pF**4)/(((pF**2)+((sc.electron_mass*sc.c)**2))**(1/2)))
+dydr.append(-(1/dPdp) * ((sc.G*y[0]*y[1])/(r**2)))
+
+A = (8 * sc.pi * (sc.electron_mass**4) * (sc.c**5))/(3 * (sc.h**3))
+Pf = (((3 * (sc.h**3) * y[0])/(16 * sc.pi * sc.proton_mass))**(1/3))
+x = Pf + (((Pf**2)+((sc.c * sc.electron_mass)**2))**(1/2))
+dPdx_1 = (1/16) * ( (x**3) + (x**-5) )
+dPdx_2 = (1/4) * (x + (x**-3))
+dPdx = A * ( dPdx_1 - dPdx_2 + (3/(8 * x) ))
+dxdPf = 1 + ((Pf)/(((Pf**2)+((sc.c * sc.electron_mass)**2))**(1/2)))
+dPfdp = (((3 * (sc.h**3))/(16 * sc.pi * sc.proton_mass))**(1/3)) * (1/3) * (y[0]**(-2/3))
+dPdp = dPdx * dxdPf * dPfdp
+
